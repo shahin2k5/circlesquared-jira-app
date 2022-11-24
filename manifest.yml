@@ -1,0 +1,83 @@
+modules:
+  jira:adminPage:
+    - key: adminPage-key
+      resource: adminPage-rsc
+      resolver:
+        function: adminPage-fn
+      title: Circlesquared configuration
+      useAsConfig: true
+  jira:issuePanel:
+    - key: issuePanel-key
+      resource: issuePanel-rsc
+      resolver:
+        function: issuePanel-fn
+      title: "CS: Test runs"
+      icon: https://circlesquared.co/images/circlesquared.svg
+  function:
+    - key: circlesquared-profile
+      handler: auth.retriever
+    - key: adminPage-fn
+      handler: adminPage.handler
+      providers:
+        auth:
+          - circlesquared
+    - key: issuePanel-fn
+      handler: issuePanel.handler
+      providers:
+        auth:
+          - circlesquared
+resources:
+  - key: adminPage-rsc
+    path: static/adminPage/build
+    tunnel:
+      port: 3000
+  - key: issuePanel-rsc
+    path: static/issuePanel/build
+    tunnel:
+      port: 3001
+  - key: issuePanelModal
+    path: static/issuePanelModal/build
+    tunnel:
+      port: 3002
+app:
+  id: ari:cloud:ecosystem::app/9a8f3e61-ac23-4f06-b1df-b18287ceac54
+providers:
+  auth:
+    - key: circlesquared
+      name: CircleSquared
+      type: oauth2
+      clientId: "3"
+      remotes:
+        - circlesquared-apis
+      bearerMethod: authorization-header
+      actions:
+        authorization:
+          remote: circlesquared-apis
+          path: /oauth/authorize
+          queryParameters:
+              access_type: offline
+              prompt: consent
+        exchange:
+          remote: circlesquared-apis
+          path: /oauth/token
+        revokeToken:
+          remote: circlesquared-apis
+          path: /oauth/revoke
+        retrieveProfile:
+          remote: circlesquared-apis
+          path: /api/user/profile
+          function: circlesquared-profile
+remotes:
+  - key: circlesquared-apis
+    baseUrl: https://circlesquared.co
+permissions:
+  content:
+      styles:
+        - 'unsafe-inline'
+      scripts:
+        - 'unsafe-inline'
+        - 'unsafe-hashes'
+  external:
+    fetch:
+      backend:
+        - 'https://circlesquared.co'
