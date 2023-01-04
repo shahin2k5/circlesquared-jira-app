@@ -1,3 +1,5 @@
+import api from '@forge/api';
+
 export const getUser = async (req) => {
   const circlesquared = api.asUser().withProvider('circlesquared', 'circlesquared-apis')
   if (!await circlesquared.hasCredentials()) {
