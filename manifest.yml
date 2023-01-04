@@ -40,13 +40,13 @@ resources:
     tunnel:
       port: 3002
 app:
-  id: ari:cloud:ecosystem::app/9a8f3e61-ac23-4f06-b1df-b18287ceac54
+  id: ari:cloud:ecosystem::app/2cee9195-5807-42c4-9bcc-60f6c511259b
 providers:
   auth:
     - key: circlesquared
       name: CircleSquared
       type: oauth2
-      clientId: "3"
+      clientId: "4"
       remotes:
         - circlesquared-apis
       bearerMethod: authorization-header
@@ -65,7 +65,7 @@ providers:
           path: /oauth/revoke
         retrieveProfile:
           remote: circlesquared-apis
-          path: /api/user/profile
+          path: /api/profile
           function: circlesquared-profile
 remotes:
   - key: circlesquared-apis

@@ -7,7 +7,7 @@ resolver.define('getUser', async (req) => {
     if (!await circlesquared.hasCredentials()) {
       await circlesquared.requestCredentials()
     }
-    const response = await circlesquared.fetch(`/api/user/profile`, { headers: { "Accept": "application/json" } });
+    const response = await circlesquared.fetch(`/api/profile`, { headers: { "Accept": "application/json" } });
     if (response.ok) {
       try {
         const profile = await response.json();

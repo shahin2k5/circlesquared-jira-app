@@ -8,18 +8,15 @@ import Form, { Field, FormFooter } from '@atlaskit/form';
 function App() {
   const [rendering, setRendering] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [isAppActive, setIsAppActive] = useState(false);
+  const [appSettings, setAppSettings] = useState({});
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     invoke('getUser').then((response) => {
       if(response.user) {
         setUser(response.user);
-        invoke('getAppSettings').then((response) => {
-          if(response.active) {
-            setIsAppActive(response.active);
-            toast("info", "You are already connected.")
-          }
+        invoke('getAppSettings').then((settings) => {
+          setAppSettings(settings);
           setRendering(false);
         })
       }
@@ -41,11 +38,10 @@ function App() {
 
   const handleSubmit = (data) => {
     setLoading(true);
-    invoke('updateAppSettings', { active: data.activation }).then((response) => {
+    invoke('updateAppSettings', { status: data.status }).then((response) => {
       setLoading(false);
-      setIsAppActive(data.activation);
-
-      if(response.active) {
+      setAppSettings({...appSettings, status: data.status})
+      if(response.status === parseInt(data.status)) {
         toast("success", "Settings updated");
       } else {
         toast("error", "Failed to update");
@@ -66,12 +62,12 @@ function App() {
       <Form onSubmit={handleSubmit}>
         {({ formProps }) => (
           <form {...formProps}>
-            <Field name="activation" defaultValue={isAppActive.toString()} label="Enable the plugin for your circlesquared team.">
+            <Field name="status" defaultValue={appSettings?.status?.toString()} label="Enable the plugin for your circlesquared team.">
               {({ fieldProps }) => (
                 <RadioGroup
                   options={[
-                    { name: 'activation', value: "true", label: 'Enable' },
-                    { name: 'activation', value: "false", label: 'Disable' },
+                    { name: 'status', value: "1", label: 'Enable' },
+                    { name: 'status', value: "0", label: 'Disable' },
                   ]}
                   {...fieldProps}
                 />

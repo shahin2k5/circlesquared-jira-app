@@ -7,13 +7,13 @@ resolver.define('getUser', async (req) => {
     if (!await circlesquared.hasCredentials()) {
       await circlesquared.requestCredentials()
     }
-    const response = await circlesquared.fetch(`/api/user/profile`, { headers: { "Accept": "application/json" } });
+    const response = await circlesquared.fetch(`/api/profile`, { headers: { "Accept": "application/json" } });
     if (response.ok) {
       try {
         const profile = await response.json();
         return profile;
       } catch(error) {
-        console.log(error)
+        throw new Error("Failed to fetch CircleSquared profile");
       }
     }
     return {
@@ -28,10 +28,9 @@ resolver.define('getAppSettings', async (req) => {
     if (!await circlesquared.hasCredentials()) {
       await circlesquared.requestCredentials()
     }
-    // TODO: get app settings from CS
-
-    const response = { active: true };
-    return response;
+    const response = await circlesquared.fetch(`/api/app/jira/settings`, { headers: { "Accept": "application/json" } });
+    const { data: settings } = await response.json();
+    return settings || {};
 });
 
 resolver.define('updateAppSettings', async (req) => {
@@ -39,11 +38,19 @@ resolver.define('updateAppSettings', async (req) => {
     if (!await circlesquared.hasCredentials()) {
       await circlesquared.requestCredentials()
     }
-    // TODO: update app settings to CS
     const { payload } = req;
+    const response = await circlesquared.fetch(`/api/app/jira/settings`, {
+      method: 'PUT',
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({...payload, app_name: 'CircleSquared-Test-management-for-Jira'})
+    });
 
-    const response = { active: true };
-    return response;
+    const { data: settings } = await response.json();
+
+    return settings;
 });
 
 export const handler = resolver.getDefinitions();
