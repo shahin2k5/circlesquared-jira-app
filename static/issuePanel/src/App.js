@@ -10,7 +10,7 @@ import Spinner from '@atlaskit/spinner';
 function App() {
   const [rendering, setRendering] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [isAppActive, setIsAppActive] = useState(false);
+  const [appSettings, setAppSettings] = useState({});
   const [issueRuns, setIssueRuns] = useState([]);
   const modal = new Modal({
     resource: 'issuePanelModal',
@@ -23,10 +23,10 @@ function App() {
   });
 
   useEffect(() => {
-    invoke('getAppSettings').then((response) => {
+    invoke('getAppSettings').then((settings) => {
       setRendering(false);
-      if(response.active) {
-        setIsAppActive(response.active);
+      setAppSettings(settings);
+      if(settings.status) {
         invoke("getIssueRuns").then((response) => {
           setLoading(false);
           setIssueRuns(Array.isArray(response) ? response : []);
@@ -43,9 +43,9 @@ function App() {
     return <Spinner/>;
   }
 
-  if(!isAppActive) {
+  if(!appSettings.status) {
     return (
-      <div>Please contact your administration for activation of the plugin.</div>
+      <div>Please contact your organization admin for activation of the plugin.</div>
     )
   }
 

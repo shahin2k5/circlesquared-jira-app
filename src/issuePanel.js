@@ -1,38 +1,12 @@
 import Resolver from '@forge/resolver';
 
+import { getAppSettings, getUser } from './helper';
+
 const resolver = new Resolver();
 
-resolver.define('getUser', async (req) => {
-  const circlesquared = api.asUser().withProvider('circlesquared', 'circlesquared-apis')
-    if (!await circlesquared.hasCredentials()) {
-      await circlesquared.requestCredentials()
-    }
-    const response = await circlesquared.fetch(`/api/profile`, { headers: { "Accept": "application/json" } });
-    if (response.ok) {
-      try {
-        const profile = await response.json();
-        return profile;
-      } catch(error) {
-        console.log(error)
-      }
-    }
-    return {
-      status: response.status,
-      statusText: response.statusText,
-      text: await response.text(),
-    }
-});
+resolver.define('getUser', getUser);
 
-resolver.define('getAppSettings', async (req) => {
-  const circlesquared = api.asUser().withProvider('circlesquared', 'circlesquared-apis')
-    if (!await circlesquared.hasCredentials()) {
-      await circlesquared.requestCredentials()
-    }
-    // TODO: get app settings from CS
-
-    const response = { active: true };
-    return response;
-});
+resolver.define('getAppSettings', getAppSettings);
 
 resolver.define('getIssueRuns', (req) => {
   return [
