@@ -12,30 +12,45 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [appSettings, setAppSettings] = useState({});
   const [issueRuns, setIssueRuns] = useState([]);
-  const modal = new Modal({
-    resource: 'issuePanelModal',
-    closeOnOverlayClick: false,
-    closeOnEscape: false,
-    onClose: (payload) => {
-      console.log('onClose called with', payload);
-    },
-    size: 'large'
-  });
+  const [searchRuns, setSearchRuns] = useState([]);
+ 
 
-  useEffect(() => {
-    invoke('getAppSettings').then((settings) => {
+  useEffect(async () => {
+    await invoke('getAppSettings').then(async (settings) => {
       setRendering(false);
       setAppSettings(settings);
-      if(settings.status) {
-        invoke("getIssueRuns").then((response) => {
-          setLoading(false);
+       if(settings.status) {
+        await invoke("getIssueRuns").then((response) => {
+          setLoading(false); 
           setIssueRuns(Array.isArray(response) ? response : []);
-        });
+        }).catch(error=>{
+          alert(JSON.stringify(error));
+        }); 
       }
     });
   }, []);
 
   const openModal = () => {
+    const modal = new Modal({
+      resource: 'issuePanelModal',
+      closeOnOverlayClick: false,
+      closeOnEscape: false,
+      onClose: async (payload) => {
+        setLoading(true);
+         await invoke("getIssueRuns").then((response) => {
+          setLoading(false); 
+          setIssueRuns(Array.isArray(response) ? response : []);
+        }).catch(error=>{
+          alert(JSON.stringify(error));
+        }); 
+        setLoading(false);
+
+      },
+      size: 'large',
+      context: {
+        customKey: searchRuns,
+      },
+    });
     modal.open();
   }
 
@@ -48,6 +63,20 @@ function App() {
       <div>Please contact your organization admin for activation of the plugin.</div>
     )
   }
+
+
+  const makeUnlinkRunTicket = async (  runId )=>{
+		setLoading(true);
+		await invoke("unlinkRunTicket",runId).then(async ( response) => {
+      const data = await response;	
+      setIssueRuns(data) 	  
+		}).catch(error=>{
+			//alert('Error 42: '+JSON.stringify(error));
+		});
+   
+		setLoading(false);
+	}
+
 
   return (
     <div>
@@ -71,12 +100,12 @@ function App() {
           rows={issueRuns.map(run => ({
               key: run.id,
               cells: [
-                  { content: (<a href="https://google.com" onClick={() => router.open('https://google.com')} target="_blank">{run.name}</a>) },
-                  { content: run.date },
+                  { content: (<a href="https://circlesquared.co/user/testrun/details/" onClick={() => router.open('https://circlesquared.co/user/testrun/details/'+run.testrun.id)} target="_blank">{run.testrun.test_run_title}</a>) },
+                  { content: run.testrun.created_at },
                   { content: (
                       <div style={{ display: "flex", alignItems: "center" }}>
                           <Progressbar status={run.status}/>
-                          <Button spacing="compact" appearance="subtle-link" onClick={() => alert(run.id)}><TrashIcon size="small"/></Button>
+                          <Button spacing="compact" appearance="subtle-link" onClick={() => makeUnlinkRunTicket(run.testrun.id)}><TrashIcon size="small"/></Button>
                       </div>
                       )
                   },

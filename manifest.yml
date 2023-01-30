@@ -1,17 +1,24 @@
 modules:
   jira:adminPage:
+    - key: adminPage-link-key
+      resource: adminPage-rsc
+      resolver:
+        function: adminPage-fn
+      title: Circle Squared
     - key: adminPage-key
       resource: adminPage-rsc
       resolver:
         function: adminPage-fn
       title: Circlesquared configuration
       useAsConfig: true
+      useAsGetStarted: true
+
   jira:issuePanel:
     - key: issuePanel-key
       resource: issuePanel-rsc
       resolver:
         function: issuePanel-fn
-      title: "CS: Test runs"
+      title: "CS: Testruns"
       icon: https://circlesquared.co/images/circlesquared.svg
   function:
     - key: circlesquared-profile
@@ -40,7 +47,8 @@ resources:
     tunnel:
       port: 3002
 app:
-  id: ari:cloud:ecosystem::app/2cee9195-5807-42c4-9bcc-60f6c511259b
+  id: ari:cloud:ecosystem::app/9cf98de8-5e4c-4044-9456-c44062919769
+
 providers:
   auth:
     - key: circlesquared

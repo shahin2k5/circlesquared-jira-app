@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { view } from '@forge/bridge';
+import { view, invoke } from '@forge/bridge';
 import Textfield from '@atlaskit/textfield';
 import CrossIcon from '@atlaskit/icon/glyph/cross'
 import Form, { Field } from '@atlaskit/form';
@@ -7,24 +7,54 @@ import Button from '@atlaskit/button';
 import LoadingButton from '@atlaskit/button/loading-button';
 import Progressbar from './components/Progressbar';
 import DynamicTable from '@atlaskit/dynamic-table';
+ 
 
 function App() {
 	const [loading, setLoading] = useState(false);
 	const [runs, setRuns] = useState([])
-	const handleSubmit = (data) => {
+	const [linkedRuns, setLinkedRuns] = useState([])
+	 
+
+	const  handleSubmit =   async (data) => {
+		
 		setLoading(true);
-		const response = [
-			{ id: 1, name: "Run 1", project: "Project 1", author: "wahid@gmail.com", status: { passed: 5, failed: 0, blocked: 0, invalid: 1, skipped: 1 } },
-			{ id: 2, name: "Run 2", project: "Project 2", author: "wahid@gmail.com", status: { passed: 3, failed: 0, blocked: 0, invalid: 1, skipped: 0 } },
-			{ id: 3, name: "Run 3", project: "Project 1", author: "wahid@gmail.com", status: { passed: 0, failed: 3, blocked: 0, invalid: 1, skipped: 0 } },
-			{ id: 4, name: "Run 4", project: "Project 1", author: "wahid@gmail.com", status: { passed: 3, failed: 0, blocked: 0, invalid: 1, skipped: 0 } },
-			{ id: 5, name: "Run 5", project: "Project 2", author: "wahid@gmail.com", status: { passed: 0, failed: 0, blocked: 1, invalid: 1, skipped: 0 } },
-			{ id: 6, name: "Run 6", project: "Project 1", author: "wahid@gmail.com", status: { passed: 2, failed: 0, blocked: 0, invalid: 1, skipped: 0 } },
-		];
-		setRuns(response);
+		await invoke("getRunSearch",data).then((response) => {
+			setRuns(response); 
+		}).catch(error=>{
+			alert('Error 27: '+JSON.stringify(error));
+		});
+		setLoading(false);	 
+	}
+
+	const makeLinkRunTicket = async (  runId, linkUnlink )=>{
+		setLoading(true);
+		let func_url = "makeLinedkRunTicket"
+		if(linkUnlink=="unlink"){
+			func_url = "unlinkRunTicket";
+		} 
+		await invoke(func_url,runId).then(async ( response) => {
+			const data = await response;	
+			let runList = runs.map(run=>{
+					if(run.id==runId){
+						if(linkUnlink=="unlink"){
+							return {...run, linked:[]}
+						}else{
+							return {...run, linked:[data]}
+						}
+					}else{
+						return run;
+					}
+				})
+				setRuns(runList) 
+		 
+		}).catch(error=>{
+			//alert('Error 42: '+JSON.stringify(error));
+		});
+ 
 		setLoading(false);
 	}
 
+ 
 	return (
 		<div>
 			<div style={{ padding: "15px 20px", display: "flex", justifyContent: "space-between", backgroundColor: "#f9f9f9" }}>
@@ -48,7 +78,7 @@ function App() {
 									)}
 								</Field>
 							</div>
-							<LoadingButton type="submit" appearance="primary" style={{ height: "auto", paddingTop: "3.5px", paddingBottom: "3.5px" }} isLoading={loading}>Search</LoadingButton>
+							<LoadingButton type="submit" appearance="primary" style={{ height: "auto", paddingTop: "3.5px", paddingBottom: "3.5px" }} isLoading={loading}>Search Run</LoadingButton>
 						</form>
 					)}
 				</Form>
@@ -65,13 +95,15 @@ function App() {
 					rows={runs.map(run => ({
 						key: run.id,
 						cells: [
-							{ content: run.name },
-							{ content: run.project },
-							{ content: run.author },
+							{ content: run.test_run_title },
+							{ content: run.project_id },
+							{ content: run.test_run_description },
 							{ content: (
 								<div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-									<Progressbar status={run.status}/>
-									<Button spacing="compact" appearance="primary" onClick={() => alert(run.id)}>Link</Button>
+									<Progressbar status={run.id}/>
+									<Button spacing="compact" appearance="primary" onClick={()=>makeLinkRunTicket(run.id, run.linked.length?'unlink':'link')} style={{width:"80px"}} title={run.linked.length?'Click to unlinked':'Click to link '}>
+										{run.linked.length?'Linked':' Link '}
+									</Button>
 								</div>
 								)
 							},
@@ -83,6 +115,8 @@ function App() {
 					isLoading={loading}
 					emptyView="No result"
 				/>
+
+			 
 			</div>
 		</div>
 	);
