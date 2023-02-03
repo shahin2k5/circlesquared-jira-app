@@ -11,8 +11,7 @@ modules:
         function: adminPage-fn
       title: Circlesquared configuration
       useAsConfig: true
-      useAsGetStarted: true
-
+ 
   jira:issuePanel:
     - key: issuePanel-key
       resource: issuePanel-rsc
@@ -20,9 +19,22 @@ modules:
         function: issuePanel-fn
       title: "CS: Testruns"
       icon: https://circlesquared.co/images/circlesquared.svg
+
+  jira:issueGlance:
+    - key: issueGlance-key
+      resource: issueGlance-rsc
+      resolver:
+        function: issueGlance-fn
+      label: "CS: Testruns"
+      title: "CS: Testruns"
+       
+
   function:
     - key: circlesquared-profile
       handler: auth.retriever
+      providers:
+        auth:
+          - circlesquared
     - key: adminPage-fn
       handler: adminPage.handler
       providers:
@@ -33,6 +45,12 @@ modules:
       providers:
         auth:
           - circlesquared
+    - key: issueGlance-fn
+      handler: issueGlance.handler
+      providers:
+        auth:
+          - circlesquared
+
 resources:
   - key: adminPage-rsc
     path: static/adminPage/build
@@ -46,8 +64,16 @@ resources:
     path: static/issuePanelModal/build
     tunnel:
       port: 3002
+  - key: issueGlance-rsc
+    path: static/issueGlance/build
+    tunnel:
+      port: 3003
+  - key: issueGlanceModal
+    path: static/issueGlanceModal/build
+    tunnel:
+      port: 3004
 app:
-  id: ari:cloud:ecosystem::app/9cf98de8-5e4c-4044-9456-c44062919769
+  id: ari:cloud:ecosystem::app/1f4544a1-f291-442f-840b-89a32350ea65
 
 providers:
   auth:
@@ -89,3 +115,5 @@ permissions:
     fetch:
       backend:
         - 'https://circlesquared.co'
+      client:
+        - 'https://*.circlesquared.co'
