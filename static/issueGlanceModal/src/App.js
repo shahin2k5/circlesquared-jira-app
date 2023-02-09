@@ -11,44 +11,50 @@ import DynamicTable from '@atlaskit/dynamic-table';
 
 function App() {
 	const [loading, setLoading] = useState(false);
-	const [runs, setRuns] = useState([])
+	const [testcases, setTestcases] = useState([])
 	const [linkedRuns, setLinkedRuns] = useState([])
 	 
 
 	const  handleSubmit =   async (data) => {
 		
 		setLoading(true);
-		await invoke("getRunSearch",data).then((response) => {
-			setRuns(response); 
+		await invoke("getTestcaseSearch",data).then((response) => {
+			console.log(response)
+			setTestcases(response); 
 		}).catch(error=>{
-			alert('Error 27: '+JSON.stringify(error));
+			if(error){
+				alert('Error 27: '+JSON.stringify(error));
+			}
 		});
 		setLoading(false);	 
 	}
 
-	const makeLinkRunTicket = async (  runId, linkUnlink )=>{
+	const makeLinkTestcaseTicket = async (  testId, linkUnlink )=>{
 		setLoading(true);
-		let func_url = "makeLinedkRunTicket"
+		let func_url = "makeLinedkTestcaseTicket"
 		if(linkUnlink=="unlink"){
-			func_url = "unlinkRunTicket";
+			func_url = "unlinkTestcaseTicket";
 		} 
-		await invoke(func_url,runId).then(async ( response) => {
+		await invoke(func_url,testId).then(async ( response) => {
 			const data = await response;	
-			let runList = runs.map(run=>{
-					if(run.id==runId){
+			
+			let testcaseList = testcases.map(test=>{
+					if(test.id==testId){
 						if(linkUnlink=="unlink"){
-							return {...run, linked:[]}
+							return {...test, linked:[]}
 						}else{
-							return {...run, linked:[data]}
+							return {...test, linked:[data]}
 						}
 					}else{
-						return run;
+						return test;
 					}
 				})
-				setRuns(runList) 
+				setTestcases(testcaseList) 
 		 
 		}).catch(error=>{
-			//alert('Error 42: '+JSON.stringify(error));
+			if(error){
+				alert('Error 42: '+JSON.stringify(error));
+			}
 		});
  
 		setLoading(false);
@@ -58,7 +64,7 @@ function App() {
 	return (
 		<div>
 			<div style={{ padding: "15px 20px", display: "flex", justifyContent: "space-between", backgroundColor: "#f9f9f9" }}>
-				<h2>Search Test Runs</h2>
+				<h2>Search Test cases</h2>
 				<Button appearance="subtle-link" spacing="none" onClick={() => view.close()}><CrossIcon/></Button>
 			</div>
 			<div style={{ padding: "15px 20px" }}>
@@ -88,21 +94,21 @@ function App() {
 						cells: [
 							{ content: 'Title' },
 							{ content: 'Project' },
-							{ content: 'Author' },
+						 
 							{ content: 'Status' },
 						]
 					}}
-					rows={runs.map(run => ({
-						key: run.id,
+					rows={testcases.map(testcase => ({
+						key: testcase.id,
 						cells: [
-							{ content: run.test_run_title },
-							{ content: run.project_id },
-							{ content: run.test_run_description },
+							{ content: testcase.testcase_name },
+							{ content: testcase.project_id },
+							 
 							{ content: (
-								<div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-									<Progressbar status={run.id}/>
-									<Button spacing="compact" appearance="primary" onClick={()=>makeLinkRunTicket(run.id, run.linked.length?'unlink':'link')} style={{width:"80px"}} title={run.linked.length?'Click to unlinked':'Click to link '}>
-										{run.linked.length?'Linked':' Link '}
+								<div style={{ display: "flex", alignItems: "right", gap: "15px",marginLeft:'20px' }}>
+									<Progressbar status={testcase.id}/>
+									<Button spacing="compact" appearance="primary" onClick={()=>makeLinkTestcaseTicket(testcase.id, testcase.linked.length?'unlink':'link')} style={{width:"80px"}} title={testcase.linked.length?'Click to unlinked':'Click to link '}>
+										{testcase.linked.length?'Linked':' Link '}
 									</Button>
 								</div>
 								)

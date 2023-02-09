@@ -13,6 +13,7 @@ function App() {
   const [appSettings, setAppSettings] = useState({});
   const [issueRuns, setIssueRuns] = useState([]);
   const [searchRuns, setSearchRuns] = useState([]);
+  const [txtConsole, settxtConsole] = useState([]);
  
 
   useEffect(async () => {
@@ -21,10 +22,13 @@ function App() {
       setAppSettings(settings);
        if(settings.status) {
         await invoke("getIssueRuns").then((response) => {
+          //settxtConsole(JSON.stringify(response))
           setLoading(false); 
           setIssueRuns(Array.isArray(response) ? response : []);
         }).catch(error=>{
-          alert(JSON.stringify(error));
+          if(error){
+            alert('issuePanel 28::'+JSON.stringify(error));
+          }
         }); 
       }
     });
@@ -41,7 +45,9 @@ function App() {
           setLoading(false); 
           setIssueRuns(Array.isArray(response) ? response : []);
         }).catch(error=>{
-          alert(JSON.stringify(error));
+          if(error){
+            alert(JSON.stringify(error));
+          }
         }); 
         setLoading(false);
 
@@ -71,7 +77,9 @@ function App() {
       const data = await response;	
       setIssueRuns(data) 	  
 		}).catch(error=>{
-			//alert('Error 42: '+JSON.stringify(error));
+      if(error){
+        alert('Error 42: '+JSON.stringify(error));
+      }
 		});
    
 		setLoading(false);
@@ -89,6 +97,7 @@ function App() {
       >
         Link a run
       </Button>
+      <p>{txtConsole}</p>
       <DynamicTable
           head={{
               cells: [
@@ -100,12 +109,12 @@ function App() {
           rows={issueRuns.map(run => ({
               key: run.id,
               cells: [
-                  { content: (<a href="https://circlesquared.co/user/testrun/details/" onClick={() => router.open('https://circlesquared.co/user/testrun/details/'+run.testrun.id)} target="_blank">{run.testrun.test_run_title}</a>) },
-                  { content: run.testrun.created_at },
+                  { content: (<a href="https://circlesquared.co/user/testrun/details/{run.testrun?run.testrun.id:''}" onClick={() => router.open('https://circlesquared.co/user/testrun/details/'+run.testrun?run.testrun.id:'')} target="_blank">{run.testrun?run.testrun.test_run_title:''}</a>) },
+                  { content: new Date(run.created_at).toLocaleDateString() },
                   { content: (
                       <div style={{ display: "flex", alignItems: "center" }}>
                           <Progressbar status={run.status}/>
-                          <Button spacing="compact" appearance="subtle-link" onClick={() => makeUnlinkRunTicket(run.testrun.id)}><TrashIcon size="small"/></Button>
+                          <Button spacing="compact" appearance="subtle-link" onClick={() => makeUnlinkRunTicket(run.testrun?run.testrun.id:'')}><TrashIcon size="small"/></Button>
                       </div>
                       )
                   },

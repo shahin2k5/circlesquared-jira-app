@@ -26,13 +26,13 @@ resolver.define('getTestcaseSearch', async (req) => {
  
 });
 
-resolver.define('makeLinedkRunTicket', async (req) => {
-  const runId =  req.payload;
+resolver.define('makeLinedkTestcaseTicket', async (req) => {
+  const testId =  req.payload;
   const ticket = req.context.extension.issue.id
   const project = req.context.extension.project.id
  
   const circlesquared = api.asUser().withProvider('circlesquared', 'circlesquared-apis')
-  const response =   await circlesquared.fetch(`/api/app/jira/runs/link?run_id=${runId}&project=${project}&ticket=${ticket}`, { headers: { "Accept": "application/json" },"method":"put" });
+  const response =   await circlesquared.fetch(`/api/app/jira/tests/link?testcase_id=${testId}&project=${project}&ticket=${ticket}`, { headers: { "Accept": "application/json" },"method":"put" });
   if(await response.ok){
     const { data: data } =  await response.json();
     return data || {};
@@ -45,13 +45,13 @@ resolver.define('makeLinedkRunTicket', async (req) => {
 
 });
 
-resolver.define('unlinkRunTicket', async (req) => {
-  const runId =  req.payload;
+resolver.define('unlinkTestcaseTicket', async (req) => {
+  const testId =  req.payload;
   const ticket = req.context.extension.issue.id
   const project = req.context.extension.project.id
   
   const circlesquared = api.asUser().withProvider('circlesquared', 'circlesquared-apis')
-  const response =   await circlesquared.fetch(`/api/app/jira/runs/unlink?run_id=${runId}&project=${project}&ticket=${ticket}`, { headers: { "Accept": "application/json" },"method":"put" });
+  const response =   await circlesquared.fetch(`/api/app/jira/tests/unlink?testcase_id=${testId}&project=${project}&ticket=${ticket}`, { headers: { "Accept": "application/json" },"method":"put" });
   if(await response.ok){
     const { data: data } =  await response.json();
     return data || {};
@@ -73,10 +73,8 @@ resolver.define('getIssueTestcases',async (req) => {
   const response =   await circlesquared.fetch(`/api/app/jira/tests/list?project=${project}&ticket=${ticket}`, { headers: { "Accept": "application/json" }});
   if(await response.ok){
     const { data: data } =  await response.json();
-    //console.log(data)
     return data || {};
   }else{
-    //const error= response.status+": "+response.statusText;
     const error= await response;
     throw new Error(JSON.stringify(response));
   }

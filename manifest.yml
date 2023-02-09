@@ -5,12 +5,14 @@ modules:
       resolver:
         function: adminPage-fn
       title: Circle Squared
-    - key: adminPage-key
-      resource: adminPage-rsc
-      resolver:
-        function: adminPage-fn
-      title: Circlesquared configuration
       useAsConfig: true
+
+    # - key: adminPage-key
+    #   resource: adminPage-rsc
+    #   resolver:
+    #     function: adminPage-fn
+    #   title: Circlesquared configuration
+    #   useAsConfig: true
  
   jira:issuePanel:
     - key: issuePanel-key
@@ -25,8 +27,8 @@ modules:
       resource: issueGlance-rsc
       resolver:
         function: issueGlance-fn
-      label: "CS: Testruns"
-      title: "CS: Testruns"
+      label: "CS: Testcases"
+      title: "CS: Testcases"
        
 
   function:
@@ -73,7 +75,7 @@ resources:
     tunnel:
       port: 3004
 app:
-  id: ari:cloud:ecosystem::app/1f4544a1-f291-442f-840b-89a32350ea65
+  id: ari:cloud:ecosystem::app/dcbfd272-4b64-48a6-a413-5f6ed98523f8
 
 providers:
   auth:
@@ -117,3 +119,4 @@ permissions:
         - 'https://circlesquared.co'
       client:
         - 'https://*.circlesquared.co'
+        - 'https://circlesquared.co'

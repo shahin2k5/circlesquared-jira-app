@@ -6,12 +6,15 @@ export const getUser = async (req) => {
     await circlesquared.requestCredentials()
   }
   const response = await circlesquared.fetch(`/api/profile`, { headers: { "Accept": "application/json" } });
+  console.log('outside')
   if (response.ok) {
+    
     try {
       const profile = await response.json();
+      console.log('oke',profile )
       return profile;
     } catch(error) {
-      throw new Error("Failed to fetch CircleSquared profile");
+      return new Error("Failed to fetch CircleSquared profile");
     }
   }
   return {

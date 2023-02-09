@@ -73,10 +73,8 @@ resolver.define('getIssueRuns',async (req) => {
   const response =   await circlesquared.fetch(`/api/app/jira/runs/list?project=${project}&ticket=${ticket}`, { headers: { "Accept": "application/json" }});
   if(await response.ok){
     const { data: data } =  await response.json();
-    //console.log(data)
-    return data || {};
+    return data || [];
   }else{
-    //const error= response.status+": "+response.statusText;
     const error= await response;
     throw new Error(JSON.stringify(response));
   }

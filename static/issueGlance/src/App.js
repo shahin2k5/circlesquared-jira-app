@@ -12,7 +12,7 @@ function App() {
   const [rendering, setRendering] = useState(true);
   const [loading, setLoading] = useState(true);
   const [appSettings, setAppSettings] = useState({});
-  const [issueRuns, setIssueRuns] = useState([]);
+  const [issueTests, setIssueTests] = useState([]);
   const [searchRuns, setSearchRuns] = useState([]);
  
 
@@ -23,10 +23,11 @@ function App() {
        if(settings.status) {
         await invoke("getIssueTestcases").then((response) => {
           setLoading(false); 
-          alert(JSON.stringify(response))
-          setIssueRuns(Array.isArray(response) ? response : []);
+          setIssueTests(Array.isArray(response) ? response : []);
         }).catch(error=>{
-          alert(JSON.stringify(error));
+          if(error){
+            alert('error::::'+JSON.stringify(error));
+          }
         }); 
       }
     });
@@ -42,9 +43,13 @@ function App() {
          await invoke("getIssueTestcases").then((response) => {
           setLoading(false); 
           console.log(JSON.stringify(response))
-          setIssueRuns(Array.isArray(response) ? response : []);
+          setIssueTests(Array.isArray(response) ? response : []);
         }).catch(error=>{
-          alert(JSON.stringify(error));
+          if(error){
+            if(error){
+              alert(JSON.stringify(error));
+            }
+          }
         }); 
         setLoading(false);
 
@@ -68,13 +73,15 @@ function App() {
   }
 
 
-  const makeUnlinkRunTicket = async (  runId )=>{
+  const makeUnlinkTestcaseTicket = async (  testId )=>{
 		setLoading(true);
-		await invoke("unlinkRunTicket",runId).then(async ( response) => {
+		await invoke("unlinkTestcaseTicket",testId).then(async ( response) => {
       const data = await response;	
-      setIssueRuns(data) 	  
+      setIssueTests(data) 	  
 		}).catch(error=>{
-			//alert('Error 42: '+JSON.stringify(error));
+      if(error){
+        alert('Error 42: '+JSON.stringify(error));
+      }
 		});
    
 		setLoading(false);
@@ -90,7 +97,7 @@ function App() {
         spacing="compact"
         onClick={openModal}
       >
-        Link a run
+        Link a test cases
       </Button>
       <DynamicTable
           head={{
@@ -100,15 +107,15 @@ function App() {
                 { content: 'Status' },
               ]
           }}
-          rows={issueRuns.map(run => ({
-              key: run.id,
+          rows={issueTests.map(test => ({
+              key: test.id,
               cells: [
-                  { content: (<a href="https://circlesquared.co/user/testrun/details/" onClick={() => router.open('https://circlesquared.co/user/testrun/details/'+run.testrun.id)} target="_blank">{run.testrun.test_run_title}</a>) },
-                  { content: run.testrun.created_at },
+                  { content: (<a href="https://circlesquared.co/user/project-details/{test.testcases.project_id}" onClick={() => router.open('https://circlesquared.co/user/project-details/'+test.testcases.project_id)} target="_blank">{test.testcases.testcase_name}</a>) },
+                  { content: new Date(test.testcases.created_at).toLocaleDateString() },
                   { content: (
                       <div style={{ display: "flex", alignItems: "center" }}>
-                          <Progressbar status={run.status}/>
-                          <Button spacing="compact" appearance="subtle-link" onClick={() => makeUnlinkRunTicket(run.testrun.id)}><TrashIcon size="small"/></Button>
+                          <Progressbar status={test.status}/>
+                          <Button spacing="compact" appearance="subtle-link" onClick={() => makeUnlinkTestcaseTicket(test.testcases.id)}><TrashIcon size="small"/></Button>
                       </div>
                       )
                   },

@@ -21,7 +21,9 @@ function App() {
 		await invoke("getRunSearch",data).then((response) => {
 			setRuns(response); 
 		}).catch(error=>{
-			alert('Error 27: '+JSON.stringify(error));
+			if(error){
+				alert('Error 27: '+JSON.stringify(error));
+			}
 		});
 		setLoading(false);	 
 	}
@@ -48,7 +50,9 @@ function App() {
 				setRuns(runList) 
 		 
 		}).catch(error=>{
-			//alert('Error 42: '+JSON.stringify(error));
+			if(error){
+				//alert('Error 42: '+JSON.stringify(error));
+			}
 		});
  
 		setLoading(false);

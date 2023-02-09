@@ -3,7 +3,28 @@ import { getAppSettings, getUser } from './helper';
 
 const resolver = new Resolver();
 
-resolver.define('getUser', getUser);
+resolver.define('getUser', async (req) => {
+  const circlesquared = api.asUser().withProvider('circlesquared', 'circlesquared-apis')
+  if (!await circlesquared.hasCredentials()) {
+    await circlesquared.requestCredentials()
+  }
+  const response = await circlesquared.fetch(`/api/profile`, { headers: { "Accept": "application/json" } });
+ 
+  if (response.ok) {
+    try {
+      const profile = await response.json();
+      console.log('fn-page-profile::',profile )
+      return profile;
+    } catch(error) {
+      return new Error("Failed to fetch CircleSquared profile");
+    }
+  }
+  return {
+    status: response.status,
+    statusText: response.statusText,
+    text: await response.text(),
+  }
+});
 
 resolver.define('getAppSettings', getAppSettings);
 
